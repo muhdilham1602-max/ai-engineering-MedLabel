@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Scratch & Temporary
+scratch/
+tmp/
+*.tmp
+
+# Operating System files
+.DS_Store
+Thumbs.db

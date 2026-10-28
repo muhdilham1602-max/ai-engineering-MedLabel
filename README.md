@@ -90,7 +90,7 @@ Key engineering challenges and limitations addressed by MedLabel include:
 | Week | Phase / Milestone | Planned Tasks & Deliverables | Status |
 | :--- | :--- | :--- | :--- |
 | **Week 1** | **Project Inception & Scoping** | • Formulate problem statement, evidence, objectives, and engineering gap.<br/>• Establish repository structure (`docs/`, `src/`, `data/`, `notebooks/`, `evaluation/`, `prompts/`).<br/>• Complete observation sheet (`docs/week1_observation_sheet.md`) and system map.<br/>• Build initial Streamlit app skeleton (`app.py`) for multi-image upload & preview.<br/>• Publish comprehensive project `README.md`. | **Completed** |
-| **Week 2** | **Data Preparation & Reference Cataloging** | • Ingest and preprocess MOH Malaysian Pharmaceutical Products dataset.<br/>• Curate synthetic and de-identified test prescription images in `data/`.<br/>• Define annotation schemas for medication name, strength, dosage, and frequency. | Pending |
+| **Week 2** | **Framing, Requirements & V1 Architecture** | • Formulate Project Framing, Scope & Requirements (`docs/week2_requirements.md`).<br/>• Establish quantitative evaluation criteria matrix and benchmark protocol (`docs/week2_evaluation_criteria.md`).<br/>• Generate V1 Architecture Diagram (`docs/week2_architecture_v1.png`) and Architecture Decision Records with Traceability Matrix (`docs/week2_architecture_decisions.md`). | **Completed** |
 | **Week 3** | **OCR Pipeline Exploration & Benchmarking** | • Benchmark candidate OCR engines (PaddleOCR, EasyOCR, Tesseract) on sample labels.<br/>• Implement preprocessing routines (deskewing, binarization, adaptive thresholding).<br/>• Evaluate baseline CER and WER in `evaluation/`. | Pending |
 | **Week 4** | **Information Extraction (IE) - Rule-based & NER** | • Implement regex and clinical NLP parsers for Malaysian dosing frequencies (OD, BD, TDS, QID, PRN).<br/>• Extract drug names, dosage amounts, and administration routes in `src/extraction.py`.<br/>• Build prompt templates in `prompts/` for LLM-assisted zero-shot parsing. | Pending |
 | **Week 5** | **Pharmaceutical Reference Grounding** | • Implement fuzzy string matching and phonetic matching against MOH registered drugs.<br/>• Map extracted brand names to generic entities and validate plausible strengths.<br/>• Measure reference matching precision and recall. | Pending |
@@ -132,6 +132,10 @@ ai-engineering-MedLabel/
 ├── docs/                               # Project documentation & milestone records
 │   ├── week1_observation_sheet.md      # Week 1 observation findings
 │   ├── week1_project_scope.md          # Week 1 project scope specification
+│   ├── week2_requirements.md           # Week 2 framing, scope & requirements (Sec 0-3)
+│   ├── week2_evaluation_criteria.md    # Week 2 evaluation criteria & metrics table
+│   ├── week2_architecture_v1.png       # Week 2 system architecture diagram v1
+│   ├── week2_architecture_decisions.md # Week 2 ADRs, trade-offs & traceability matrix
 │   ├── observation_sheet.md            # Working observation sheet
 │   └── system_map.md                   # System workflow map
 │
