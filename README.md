@@ -136,8 +136,9 @@ ai-engineering-MedLabel/
 │   ├── week2_evaluation_criteria.md    # Week 2 evaluation criteria & metrics table
 │   ├── week2_architecture_v1.png       # Week 2 system architecture diagram v1
 │   ├── week2_architecture_decisions.md # Week 2 ADRs, trade-offs & traceability matrix
-│   ├── observation_sheet.md            # Working observation sheet
-│   └── system_map.md                   # System workflow map
+│   ├── week1_system_map.png            # Week 1 conceptual AI system map (ChatGPT)
+│   ├── group_reflections.md            # Week 1 Part A & Part B group reflections
+│   └── evidence/                       # Week 1 supporting screenshot evidence
 │
 ├── data/                               # Dataset samples & ground truth references
 │   ├── README.md                       # Data governance and usage guidelines
