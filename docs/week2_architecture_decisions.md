@@ -16,6 +16,8 @@ The high-level structural design of MedLabel V1 is illustrated below:
 
 ![MedLabel V1 Architecture Diagram](week2_architecture_v1.png)
 
+> **Draw.io Source Diagram:** An editable version is provided in [docs/week2_architecture_v1.drawio](week2_architecture_v1.drawio), which can be opened and edited directly in [draw.io (diagrams.net)](https://app.diagrams.net).
+
 ### 1.2 Multi-Layer Organization
 1. **Layer 1: User Interaction & Presentation Layer (`app.py` via Streamlit)**
    - Manages prescription file ingestion (`PNG`, `JPG`, `JPEG`).
