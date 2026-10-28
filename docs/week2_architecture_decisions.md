@@ -16,7 +16,6 @@ The official system architecture diagram of MedLabel V1 is illustrated below:
 
 ![MedLabel V1 Architecture Diagram](week2_architecture_v1.png)
 
-> **Draw.io Source Diagram:** An editable version is provided in [`docs/week2_architecture_v1.drawio`](week2_architecture_v1.drawio), which can be opened and edited directly in [draw.io (diagrams.net)](https://app.diagrams.net).
 
 ### 1.2 End-to-End System Workflow
 
