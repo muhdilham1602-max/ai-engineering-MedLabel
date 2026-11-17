@@ -1,0 +1,59 @@
+{
+  "pipeline_version": "week3-v1",
+  "generated_at_utc": "2026-11-17T15:20:12.948742+00:00",
+  "data_type": "tabular",
+  "configuration": {
+    "remove_exact_duplicates": true,
+    "trim_text": true
+  },
+  "processing_method": "remove_exact_duplicates=True; trim_text=True",
+  "sources": [
+    {
+      "path": "data/raw/moh_pharmaceutical_products_sample.csv",
+      "sha256": "d09cbbb9bc24de67c523d603dec1745d44575e0181607ab91f27bc778bf9f4ec"
+    }
+  ],
+  "outputs": [
+    "data/pipeline_v1/tabular/prepared_table.csv"
+  ],
+  "source_output_mapping": [
+    {
+      "source": "moh_pharmaceutical_products_sample.csv",
+      "output": "data/pipeline_v1/tabular/prepared_table.csv"
+    }
+  ],
+  "inspection": {
+    "rows": 20,
+    "columns": [
+      "registration_no",
+      "product_name",
+      "active_ingredient",
+      "dosage_form",
+      "strength",
+      "manufacturer",
+      "holder"
+    ],
+    "missing": {
+      "registration_no": 0,
+      "product_name": 0,
+      "active_ingredient": 0,
+      "dosage_form": 0,
+      "strength": 0,
+      "manufacturer": 0,
+      "holder": 0
+    },
+    "exact_duplicates": 0
+  },
+  "validation": {
+    "output_count": 1,
+    "output_sha256": [
+      "93052746761e413060e92879cfc57fd4b7013204779efbee5e7d2947925b7ab7"
+    ],
+    "output_bytes": [
+      2789
+    ]
+  },
+  "source_version": "MOH Malaysia Open Data 2026",
+  "access_rights": "Open Government License / Public Metadata",
+  "status": "PASS: Tabular output validated and fingerprint verified"
+}

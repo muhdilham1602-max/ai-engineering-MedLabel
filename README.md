@@ -91,7 +91,7 @@ Key engineering challenges and limitations addressed by MedLabel include:
 | :--- | :--- | :--- | :--- |
 | **Week 1** | **Project Inception & Scoping** | • Formulate problem statement, evidence, objectives, and engineering gap.<br/>• Establish repository structure (`docs/`, `src/`, `data/`, `notebooks/`, `evaluation/`, `prompts/`).<br/>• Complete observation sheet (`docs/week1_observation_sheet.md`) and system map.<br/>• Build initial Streamlit app skeleton (`app.py`) for multi-image upload & preview.<br/>• Publish comprehensive project `README.md`. | **Completed** |
 | **Week 2** | **Framing, Requirements & V1 Architecture** | • Formulate Project Framing, Scope & Requirements (`docs/week2_requirements.md`).<br/>• Establish quantitative evaluation criteria matrix and benchmark protocol (`docs/week2_evaluation_criteria.md`).<br/>• Generate V1 Architecture Diagram (`docs/week2_architecture_v1.png`) and Architecture Decision Records with Traceability Matrix (`docs/week2_architecture_decisions.md`). | **Completed** |
-| **Week 3** | **OCR Pipeline Exploration & Benchmarking** | • Benchmark candidate OCR engines (PaddleOCR, EasyOCR, Tesseract) on sample labels.<br/>• Implement preprocessing routines (deskewing, binarization, adaptive thresholding).<br/>• Evaluate baseline CER and WER in `evaluation/`. | Pending |
+| **Week 3** | **Data Engineering Pipelines & Lineage** | • Ingest and inspect prescription image dataset in `data/raw/images/`.<br/>• Implement and execute V1 Image Data Pipeline (Pathway C) in `notebooks/week3_pipeline.ipynb`.<br/>• Generate data inventory (`docs/week3_data_inventory.md`), lineage manifest (`data/week3_manifest.json`), pipeline decisions (`docs/week3_pipeline_decisions.md`), and pipeline diagram (`docs/week3_pipeline_diagram.png`).<br/>• Verify repeatability smoke checks. | **Completed** |
 | **Week 4** | **Information Extraction (IE) - Rule-based & NER** | • Implement regex and clinical NLP parsers for Malaysian dosing frequencies (OD, BD, TDS, QID, PRN).<br/>• Extract drug names, dosage amounts, and administration routes in `src/extraction.py`.<br/>• Build prompt templates in `prompts/` for LLM-assisted zero-shot parsing. | Pending |
 | **Week 5** | **Pharmaceutical Reference Grounding** | • Implement fuzzy string matching and phonetic matching against MOH registered drugs.<br/>• Map extracted brand names to generic entities and validate plausible strengths.<br/>• Measure reference matching precision and recall. | Pending |
 | **Week 6** | **Uncertainty & Conflict Detection** | • Implement safety checks in `src/validation.py` for missing fields or low OCR confidence.<br/>• Develop duplicate drug detection and conflicting frequency detection.<br/>• Generate actionable warning flags for end-user review. | Pending |
@@ -136,6 +136,9 @@ ai-engineering-MedLabel/
 │   ├── week2_evaluation_criteria.md    # Week 2 evaluation criteria & metrics table
 │   ├── week2_architecture_v1.png       # Week 2 system architecture diagram v1
 │   ├── week2_architecture_decisions.md # Week 2 ADRs, trade-offs & traceability matrix
+│   ├── week3_data_inventory.md         # Topic 3 Data inventory & requirements mapping
+│   ├── week3_pipeline_diagram.png      # Topic 3 Executed V1 data pipeline diagram
+│   ├── week3_pipeline_decisions.md     # Topic 3 Decisions, comparisons & stage contracts
 │   ├── week1_system_map.png            # Week 1 conceptual AI system map (ChatGPT)
 │   ├── group_reflections.md            # Week 1 Part A & Part B group reflections
 │   └── evidence/                       # Week 1 supporting screenshot evidence
@@ -150,7 +153,8 @@ ai-engineering-MedLabel/
 │   ├── validation.py                   # Uncertainty, conflict & validation logic
 │   └── timetable.py                    # Timetable consolidation & generation logic
 │
-├── notebooks/                          # Experimental and exploratory notebooks
+├── notebooks/                          # Executable Colab notebooks
+│   ├── week3_pipeline.ipynb            # Topic 3 V1 Data Pipeline (Pathway C)
 │   └── .gitkeep
 │
 ├── evaluation/                         # Evaluation scripts and metric plans
