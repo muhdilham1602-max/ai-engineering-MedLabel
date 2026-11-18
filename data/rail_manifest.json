@@ -1,0 +1,59 @@
+{
+  "dataset": "Rapid Rail KL GTFS Static",
+  "source_provider": "Prasarana Malaysia via Malaysia Open API",
+  "source_url": "https://api.data.gov.my/gtfs-static/prasarana?category=rapid-rail-kl",
+  "documentation_url": "https://developer.data.gov.my/realtime-api/gtfs-static",
+  "license": "CC BY 4.0",
+  "attribution": "Prasarana Malaysia Berhad via data.gov.my GTFS Static API",
+  "retrieved_at_local_date": "2026-11-18",
+  "archive_path": "data/raw/rapid-rail-kl-gtfs.zip",
+  "archive_bytes": 80673,
+  "archive_sha256": "45c134f991b955eff801d35a45d9bdbeca83ae780bfc29dcac142665146c4533",
+  "zip_crc_check": "passed",
+  "source_files": [
+    "agency.txt",
+    "calendar.txt",
+    "frequencies.txt",
+    "routes.txt",
+    "shapes.txt",
+    "stop_times.txt",
+    "stops.txt",
+    "trips.txt"
+  ],
+  "row_counts": {
+    "agency.txt": 1,
+    "routes.txt": 8,
+    "trips.txt": 48,
+    "stops.txt": 187,
+    "stop_times.txt": 1122,
+    "calendar.txt": 8
+  },
+  "validation": {
+    "duplicate_route_ids": 0,
+    "duplicate_trip_ids": 0,
+    "duplicate_stop_ids": 0,
+    "duplicate_trip_stop_sequences": 0,
+    "trips_missing_route": 0,
+    "trips_missing_service": 0,
+    "stop_times_missing_trip": 0,
+    "stop_times_missing_stop": 0,
+    "zip_crc_errors": 0
+  },
+  "route_lines": [
+    "Ampang Line",
+    "Kelana Jaya Line",
+    "Sri Petaling Line",
+    "Kajang Line",
+    "Putrajaya Line",
+    "KL Monorail Line",
+    "Sunway Line",
+    "Shah Alam Line"
+  ],
+  "limitations": [
+    "Static schedule data only; no stable Rapid Rail KL GTFS Realtime feed is listed in the current API documentation.",
+    "Archive contains no transfers.txt or pathways.txt; explicit station-transfer and bus-to-rail connection data are not provided.",
+    "Two calendar services end 2026-03-31 and six end 2026-12-31; validate dates and refresh before date-specific use.",
+    "This is an inspected snapshot and may not reflect later feed updates or operational changes."
+  ]
+}
+
