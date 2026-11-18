@@ -1,141 +1,67 @@
-# Week 2 — Project Framing, Scope, and Requirements Specification
+# Week 2 Requirements Specification
 
-**Project:** MedLabel (AI-Based Multi-Prescription Recognition and Medication Timetable Generation)  
-**Document Version:** 1.0  
-**Date:** October 28, 2026  
-**Author:** MedLabel Engineering Team  
+## 0. Project framing and application scope
 
----
+**Project:** Rapid KL Bus Route Assistant. **Users:** new or occasional riders. **Problem:** route, trip, stop and stop-time facts are distributed across linked GTFS tables; a plain-language lookup should return an answer traceable to the underlying records. The project will test this with a curated question set and must not claim that the feed is complete.
 
-## Section 0: Project Framing
+**Evidence/data:** Official Malaysia GTFS Static API documentation; the Prasarana `rapid-bus-kl` GTFS feed; the October 2025 Klang Valley Integrated Transit Map; and the 2024 Rapid KL service-use guide. Feed licence is CC BY 4.0 per the API documentation. A snapshot fetched on 18 November 2026 yielded 139 routes, 4,107 stops, 2,118 trips, 88,801 stop-time rows and 2 service calendar records. Basic uniqueness and foreign-key checks passed. Provider caveat: approximately 2% of Rapid Bus KL trips were removed from `stop_times.txt` due to operational issues.
 
-### 0.1 Problem Domain & Context
-MedLabel addresses a critical intersection between **Computer Vision (Document OCR)**, **Natural Language Processing (Clinical Entity Extraction)**, and **Healthcare Informatics**.
+**Existing approaches:** official structured GTFS data (machine-readable but requires linked-table lookup); official transit map (useful overview, less directly queryable); general map/transit applications (convenient, but this project will not assume their internal data or provenance).
 
-In Malaysia, healthcare delivery is divided between public healthcare facilities (Ministry of Health / KKM hospitals and *Klinik Kesihatan*) and private healthcare providers (specialist centres, general practitioner clinics, and retail pharmacy chains such as Caring, Guardian, and Big Pharmacy). Patients managing chronic conditions (e.g., Type 2 Diabetes, Hypertension, Dyslipidemia, and Cardiovascular diseases) frequently visit multiple care facilities. Consequently, they receive separate paper-based prescriptions or physical dispensing labels attached to medication boxes, blister strips, and bottles.
+**Engineering gap:** evaluate a small natural-language interface that retrieves exact records from the official static feed, reports provenance/freshness and handles unsupported questions safely. This is a coursework engineering gap, not a claim of research novelty.
 
-### 0.2 Core Challenge
-Each prescription source adheres to differing formatting standards, varied typographic layouts, and differing conventions for dosage instructions:
-- **Language Mixture:** Labels combine English, Latin medical abbreviations (*OD*, *BD*, *TDS*, *QID*, *prn*, *pc*, *ac*, *om*, *on*), and Bahasa Melayu colloquial instructions (*"1 biji 2 kali sehari selepas makan"*, *"ambil bila perlu"*).
-- **Physical Document Variability:** Prescriptions range from dot-matrix pharmacy receipts to thermal adhesive labels that suffer from fading, glare, crumpling, and uneven lighting when captured via smartphone cameras.
-- **Cognitive Overload for Patients:** Patients and non-clinical caregivers must mentally synthesize multiple disparate documents into a coherent daily timetable. Miscalculating intervals, misreading look-alike names (e.g., *Metformin* vs. *Metoprolol*), or duplicating active ingredients across brand and generic products often results in severe adverse drug events (ADEs).
+**Objectives:** O1 design the source-grounded assistant; O2 implement question-to-GTFS retrieval and answer generation; O3 evaluate correctness, groundedness, scope control and latency.
 
-### 0.3 Value Proposition & Impact
-- **Patient Safety:** Eliminates error-prone manual transcribing by extracting instructions directly from source documents and systematically flagging ambiguities.
-- **Traceability:** Unlike opaque black-box AI tools, MedLabel retains an unbroken audit trail by linking every digitized instruction directly back to its original bounding box image crop.
-- **Human-in-the-Loop Governance:** MedLabel acts as an intelligent cognitive assistant rather than an autonomous decision maker. No timetable is finalized without explicit patient or caregiver validation.
+**Scope:** look up routes serving a named stop, whether a stop belongs to a selected route/trip, and ordered stops for a selected trip. Static scheduled data only. No live arrivals, disruptions, fare calculation, transfers, accessibility confirmation, or optimized end-to-end trip planning. Ambiguous stop names require clarification.
 
-### 0.4 User Personas
+**Constraints:** public CC BY 4.0 feed, changing snapshots, documented missing-trip caveat, name ambiguity, single semester, and no official service status. Store source date/hash and retain attribution.
 
-| Persona | Role / Profile | Key Pain Points | MedLabel Value |
-| :--- | :--- | :--- | :--- |
-| **Persona 1: Uncle Tan (68)** | Chronic disease patient managing 6 medications from KKM clinic and private specialist. | Confused by varying tablet intake times; struggles to read small printed label text; fears forgetting doses. | Scans all labels; gets a high-contrast, large-print daily timetable organized by meal times (Pagi, Tengah Hari, Malam). |
-| **Persona 2: Sarah (34)** | Primary caregiver for her elderly mother with mild dementia and hypertension. | Spends hours every Sunday sorting pillboxes; worries about conflicting medications and duplicate active ingredients. | Uploads photos of mother's prescription slips; reviews flagged duplicates/conflicts; prints a weekly schedule. |
-| **Persona 3: Community Pharmacist / Nurse** | Healthcare professional conducting medication reconciliation during patient check-in. | Manual reconciliation of paper slips brought in a plastic bag ("brown bag review") is slow and lacks digital tracking. | Quickly scans patient labels to generate a consolidated preliminary medication summary for clinical review. |
+## 1. Functional requirements
 
----
+| ID | Requirement | Objective | Acceptance evidence |
+|---|---|---|---|
+| FR1 | The system shall identify route, stop, or trip lookup intent from a supported natural-language question. | O1, O2 | Curated intent set with expected lookup type. |
+| FR2 | The system shall list route identifiers and names serving a uniquely identified stop using linked GTFS records. | O2 | Compare result set against direct GTFS joins. |
+| FR3 | The system shall return the ordered stops for a selected trip using `stop_times.stop_sequence`. | O2 | Compare ordered output against source records. |
+| FR4 | The system shall cite the feed retrieval date and relevant source identifiers (route, stop, trip, and/or source file) for each factual answer. | O1, O2 | Inspect answer and provenance fields. |
+| FR5 | The system shall ask a clarification question when a stop or route reference is ambiguous. | O1, O2 | Ambiguous-name scenarios. |
+| FR6 | The system shall state that the feed is static and shall not present a scheduled time as a live arrival estimate. | O1, O2 | Realtime-query scenarios. |
+| FR7 | The system shall abstain and direct users to the official provider when a request is outside the supported dataset or requires current operational status. | O1, O2 | Out-of-scope scenarios. |
+| FR8 | The system shall allow the operator to refresh the GTFS snapshot and record its retrieval timestamp, source URL, file hash, and validation summary. | O2 | Refresh run manifest. |
 
-## Section 1: Application Scope
+## 2. Non-functional requirements
 
-### 1.1 In-Scope Capabilities
-1. **Multi-Image Ingestion:** Simultaneous uploading and rendering of multiple prescription and label photos (`.png`, `.jpg`, `.jpeg`).
-2. **Image Preprocessing:** Grayscale conversion, contrast stretching (CLAHE), deskewing, and noise filtering to enhance low-quality mobile uploads.
-3. **OCR Text & Bounding-Box Detection:** Optical character recognition extracting raw text tokens alongside spatial bounding coordinates.
-4. **Structured Information Extraction (IE):** Parsing key pharmaceutical attributes:
-   - Medication Name (Brand and Generic)
-   - Strength / Concentration (e.g., `500 mg`, `10 mg/ml`)
-   - Dosage Amount (e.g., `1 tablet`, `2 capsules`, `5 ml`)
-   - Frequency (e.g., `OD`, `BD`, `TDS`, `QID`, `PRN`)
-   - Administration Timing & Conditions (e.g., `Before meals / ac`, `After meals / pc`, `At bedtime / on`)
-   - Duration (e.g., `7 days`, `1 month`, `As directed`)
-5. **Malaysian Pharmaceutical Reference Grounding:** Matching extracted medicine names against the official Ministry of Health (MOH) Malaysia Pharmaceutical Products Dataset to correct minor OCR misspellings and normalize brand-to-generic mappings.
-6. **Uncertainty & Safety Conflict Detection:**
-   - Flagging low-confidence OCR tokens.
-   - Detecting omitted critical fields (e.g., missing frequency or missing strength).
-   - Identifying duplicate active ingredients across different prescriptions.
-   - Highlighting abnormal dosing schedules.
-7. **Interactive Human-in-the-Loop (HITL) Verification:**
-   - Displaying side-by-side synchronized views of the original prescription crop and editable text fields (`st.data_editor`).
-   - Providing visual indicators (color-coded flags) for fields requiring confirmation.
-8. **Consolidated Timetable Generation:**
-   - Synthesizing confirmed instructions across all uploaded prescriptions into a unified chronological schedule (Morning, Afternoon, Evening, Night / Bedtime).
-   - Incorporating meal constraints (*Before Food* vs. *After Food*).
-9. **Export Functionality:** Exporting the verified schedule to structured JSON and printable summary views.
+Thresholds below are provisional engineering targets for the coursework prototype; validate them with a small intended-user task session and revise if needed.
 
-### 1.2 Out-of-Scope Boundaries (Safety Guardrails)
-- **Autonomous Diagnosis:** The system will not diagnose conditions or suggest therapeutic indications.
-- **Dosage Prescription or Adjustment:** The system will never recommend changing, increasing, or reducing prescribed doses.
-- **Autonomous Conflict Resolution:** The system will flag potential conflicts (e.g., duplicate active ingredients), but will **never** alter or delete an instruction automatically without user intervention and advice from a licensed healthcare professional.
-- **Visual Pill Appearance Identification:** Identifying loose pills or capsules from photograph appearance alone is excluded due to high risk of visual confusion.
-- **Live Electronic Health Record (EHR) Writing:** MedLabel will not automatically mutate clinical EHR databases.
-- **Handwritten Doctor Notes:** While tested opportunistically, unconstrained doctor cursive handwriting is excluded from initial baseline commitments; the primary focus is printed dispensing labels and typed prescription slips.
+| ID | Quality | Requirement and measurement | Threshold |
+|---|---|---|---|
+| NFR1 | Correctness | On a frozen set of 50 supported lookups, measure exact match of route/stop result sets against direct GTFS queries. | At least 90% exact-match accuracy. |
+| NFR2 | Latency | Measure end-to-end response time for the same 50 questions on the documented Colab/runtime setup. | p95 no more than 5 seconds, excluding feed download. |
+| NFR3 | Reliability | Run the pipeline five times on the same archived feed snapshot and compare prepared-table counts, source hash and key outputs. | 5/5 runs produce identical data fingerprints and counts. |
+| NFR4 | Data integrity | Count duplicate primary keys and unresolved foreign-key references across routes, trips, stops, stop_times and calendar. | Zero duplicate primary keys and zero unresolved required references, or documented stop-and-report failure. |
+| NFR5 | Usability | Ask at least five intended users to complete five representative lookup tasks; collect task completion and a 1–5 clarity rating. | At least 80% task completion and median clarity rating of 4/5 or higher. |
 
-### 1.3 Key Assumptions and Environmental Constraints
-- **Device & Camera:** Users capture images using standard consumer smartphones (minimum 8-megapixel resolution) with reasonable focus and ambient lighting.
-- **Language Convention:** Prescriptions conform to standard Malaysian clinical conventions (English, Bahasa Melayu, or mixed Latin medical terms).
-- **Network & Privacy Constraint:** Image processing and text parsing should minimize external transmission of unprotected patient identifiers.
+## 3. Responsible AI requirements
 
----
+| ID | Risk/control | Requirement | Measurement and threshold |
+|---|---|---|---|
+| RAI1 | Grounding and hallucination | The system shall only state route/stop facts supported by retrieved GTFS rows and shall show source identifiers. | Audit 50 answers: at least 95% of factual claims supported by cited rows; unsupported claim rate 0%. |
+| RAI2 | Misleading real-time use | The system shall label data as static schedule information and refuse live arrival/status claims. | Test 10 realtime/status prompts: 10/10 clearly state limitation and link to official service channel. |
+| RAI3 | Ambiguity | The system shall ask for clarification instead of choosing among duplicate or uncertain stop names. | Test all ambiguous cases in the evaluation set: 100% clarification before route claims. |
+| RAI4 | Coverage transparency | The system shall disclose the provider's documented missing-trip caveat when describing coverage and shall not claim the feed is complete. | Review README and relevant responses: caveat appears in all project documentation and applicable responses. |
+| RAI5 | Privacy | The system shall not request or store sensitive personal data; question logs used for evaluation shall be anonymized and contain no account identifiers. | Inspect log schema and sample logs: zero personal-data fields. |
+| RAI6 | Language handling | The system shall handle supported English and Malay stop queries without materially worse lookup accuracy in either language. | Compare English/Malay test subsets: each at least 85% exact-match accuracy and gap no more than 10 percentage points. |
 
-## Section 2: Functional and Non-Functional Requirements
+## Objective-to-requirement links
 
-### 2.1 Functional Requirements (FR)
+- O1: FR1, FR4–FR7, RAI2–RAI4.
+- O2: FR2–FR3, FR8, NFR3–NFR4, RAI1, RAI5–RAI6.
+- O3: NFR1–NFR2, NFR5, and the measurable RAI criteria.
 
-| Requirement ID | Module | Description | Priority |
-| :--- | :--- | :--- | :--- |
-| **FR-01** | Ingestion | System shall accept multiple image files simultaneously in standard web formats (`PNG`, `JPG`, `JPEG`) up to 10MB per file. | High |
-| **FR-02** | Preprocessing | System shall apply automated image preprocessing (deskewing, contrast enhancement, noise reduction) prior to OCR. | Medium |
-| **FR-03** | OCR Extraction | System shall extract text characters, words, and their corresponding spatial bounding box coordinates `[x, y, w, h]`. | High |
-| **FR-04** | Entity Extraction | System shall parse raw text into structured attributes: `{Medication Name, Strength, Dosage, Frequency, Timing/Condition, Duration}`. | High |
-| **FR-05** | Bilingual Normalization | System shall interpret both Latin abbreviations (`TDS`, `BD`, `OD`) and Malay phrases (`3 kali sehari`, `selepas makan`, `sebelum makan`). | High |
-| **FR-06** | Reference Matching | System shall perform fuzzy string matching against the Malaysian MOH Pharmaceutical Products catalog to identify closest registered drugs. | High |
-| **FR-07** | Uncertainty Flagging | System shall assign confidence scores to extracted fields and flag tokens falling below a predefined confidence threshold ($\tau < 0.80$). | High |
-| **FR-08** | Conflict Detection | System shall scan all active items and generate warning alerts if identical active ingredients or conflicting frequencies are detected. | High |
-| **FR-09** | Visual Traceability | System shall display the cropped image region corresponding to each extracted entity when selected in the verification UI. | High |
-| **FR-10** | Interactive Correction | System shall provide an interactive data editor allowing users to modify, accept, or delete extracted medication rows. | High |
-| **FR-11** | Timetable Synthesis | System shall map verified items into standardized daily time slots (e.g., Morning: 08:00, Afternoon: 13:00, Evening: 19:00, Bedtime: 22:00). | High |
-| **FR-12** | Export & Summary | System shall output the verified schedule as a downloadable structured JSON file and formatted summary table. | Medium |
+## Source register
 
-### 2.2 Non-Functional Requirements (NFR)
+- GTFS API documentation: https://developer.data.gov.my/realtime-api/gtfs-static
+- Rapid Bus KL feed: https://api.data.gov.my/gtfs-static/prasarana?category=rapid-bus-kl
+- Transit map (October 2025): https://myrapid.com.my/wp-content/uploads/2025/10/Transit-Map_131025.pdf
+- Rapid KL guide (2024): https://myrapid.com.my/wp-content/uploads/2024/10/Booklet_Panduan-Penggunaan-Perkhidmatan-Rapid-KL_c.pdf
 
-#### NFR-1: Performance & Latency
-- The end-to-end processing time from image upload to draft extraction display shall not exceed **5.0 seconds** per prescription image on standard consumer hardware.
-- UI responsiveness during interactive table editing shall remain under **200 milliseconds** per interaction.
-
-#### NFR-2: Usability & Accessibility
-- Interface elements must adhere to WCAG 2.1 AA contrast standards to support elderly users and individuals with mild visual impairment.
-- Medical jargon shall be translated into plain-language summaries (e.g., explaining `TDS` as `Three times a day (Morning, Afternoon, Evening)`).
-
-#### NFR-3: Reliability & Safety
-- The system must fail safely: if OCR or entity extraction fails, the application shall display an informative error prompt without crashing and prompt the user to manually enter details.
-- System shall prevent timetable generation until the user checks an explicit confirmation checkbox verifying the extracted items.
-
-#### NFR-4: Auditability & Traceability
-- 100% of generated timetable entries must maintain bidirectional references to their source file name and bounding box coordinate.
-
-#### NFR-5: Modularity & Maintainability
-- The codebase shall maintain clean separation between OCR (`src/ocr.py`), extraction (`src/extraction.py`), validation (`src/validation.py`), and timetable generation (`src/timetable.py`).
-
----
-
-## Section 3: Responsible AI Requirements
-
-### 3.1 Human Oversight & Verification (Human-in-the-Loop)
-- **Mandatory Validation Gate:** The application strictly enforces a human-in-the-loop workflow. Timetable synthesis is completely disabled until the user conducts a side-by-side visual audit.
-- **Unambiguous Agency:** The system acts strictly as an administrative transcription tool, never replacing the cognitive authority of a licensed doctor or pharmacist.
-
-### 3.2 Mitigation of Automation Bias
-- **Visual Friction & Warning Banners:** A persistent disclaimer is rendered across all pages stating that MedLabel is an AI prototype and requiring manual confirmation.
-- **Color-Coded Uncertainty:** Low-confidence extractions are rendered in distinct amber/red warning badges to counter passive acceptance.
-
-### 3.3 Data Privacy, Confidentiality & Compliance
-- **Compliance with PDPA 2010:** Adheres to the principles of the Malaysian Personal Data Protection Act 2010.
-- **No Unsolicited PII Retention:** Uploaded images and extracted patient identifiers (e.g., patient name, NRIC number, address) are processed in-memory within the active session state. No patient data is persisted to public cloud storage or public Git repositories.
-- **De-Identification Protocol:** Any sample data stored in the repository for evaluation must be synthetic or fully scrubbed of Protected Health Information (PHI).
-
-### 3.4 Transparency & Explainability
-- **Visible Grounding:** Every extracted entity displays its matching score against the MOH database.
-- **Explainable Conflict Warnings:** When a conflict is raised (e.g., "Duplicate Paracetamol detected"), the system clearly articulates the two conflicting prescription sources and active substances involved.
-
-### 3.5 Fallback & Failure Handling
-- When image quality is severely degraded (excessive blur, severe glare, occluded text), the system explicitly refuses to guess. It prompts the user: *"Image quality is too low for reliable reading. Please retake the photo under brighter light or enter the details manually."*
