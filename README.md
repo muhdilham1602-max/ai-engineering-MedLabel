@@ -15,6 +15,10 @@ V1 does not provide real-time arrivals, fares, accessibility guarantees, traffic
 - `docs/week2_evaluation_criteria.md` — evaluation plan and thresholds
 - `docs/week2_architecture_v1.png` — conceptual architecture
 - `docs/week2_architecture_decisions.md` — decisions and traceability
+- `notebooks/week3_pipeline.ipynb` — executable Colab pipeline
+- `docs/week3_data_inventory.md` — source inventory and inspection evidence
+- `docs/week3_pipeline_diagram.png` — executed pipeline workflow
+- `docs/week3_pipeline_decisions.md` — preparation choices, contracts and trade-offs
 
 ## Data
 
@@ -32,5 +36,5 @@ Do not commit downloaded feed snapshots unless their date and CC BY 4.0 attribut
 
 ## Status
 
-Topics 1 and 2 planning draft. Group observation and system-map evidence should remain the student's actual group work; do not replace it with fabricated observations. Topic 3 implementation and execution evidence are not included in this planning package.
+Topics 1–3 individual artefacts are prepared. The official feed was downloaded, the structured pipeline was built and a deterministic repeatability check passed on the preserved snapshot. Run the notebook in Google Colab to reproduce the pipeline there. Group observation and system-map files are retained as the student's original group evidence.
 
